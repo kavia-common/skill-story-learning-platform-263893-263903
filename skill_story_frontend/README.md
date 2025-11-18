@@ -1,82 +1,47 @@
-# Lightweight React Template for KAVIA
+# Skill Story LMS Frontend
 
-This project provides a minimal React template with a clean, modern UI and minimal dependencies.
+Minimal React UI wired to FastAPI backend for stories, episodes/choices, XP/progress, profile, and journal.
 
-## Features
+## Quick Start
 
-- **Lightweight**: No heavy UI frameworks - uses only vanilla CSS and React
-- **Modern UI**: Clean, responsive design with KAVIA brand styling
-- **Fast**: Minimal dependencies for quick loading times
-- **Simple**: Easy to understand and modify
+1. Copy environment file and set backend URL:
+   cp .env.example .env
+   # then edit .env, set REACT_APP_API_BASE_URL to your FastAPI URL (e.g., http://localhost:8000)
+   # optionally set REACT_APP_DEMO_USER to pass X-Demo-User header
 
-## Getting Started
+2. Install dependencies and run:
+   npm install
+   npm start
 
-In the project directory, you can run:
+3. Open http://localhost:3000
 
-### `npm start`
+## What’s Included
 
-Runs the app in development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+- API client (src/api/client.js) with:
+  - Env-driven base URL (REACT_APP_API_BASE_URL)
+  - Optional demo header (REACT_APP_DEMO_USER -> X-Demo-User)
+  - CORS safe fetch with credentials include
+  - Endpoints: health, auth (stub), stories, episode, submit choice, progress, profile, journal
 
-### `npm test`
+- React hooks (src/hooks/useApi.js)
+  - useStories, useEpisode, useSubmitChoice, useProgress, useProfile, useJournal, useAuthDemo
+  - Built-in loading/error state and refetch
 
-Launches the test runner in interactive watch mode.
+- Minimal UI demo (src/components/StoryBrowser.js)
+  - Story list -> episode text & choices -> advance on select
+  - Profile display and update display_name
+  - Progress (XP, current story/episode)
+  - Journal list and create entry
+  - Responsive layout and theme toggle (light/dark)
 
-### `npm run build`
+## Environment Variables
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- REACT_APP_API_BASE_URL: Base URL of FastAPI backend (e.g., http://localhost:8000)
+- REACT_APP_DEMO_USER: Optional demo user identifier; forwarded as X-Demo-User header
 
-## Customization
+Do not hardcode secrets. Use .env during development and inject variables in deployment.
 
-### Colors
+## Testing
 
-The main brand colors are defined as CSS variables in `src/App.css`:
-
-```css
-:root {
-  --kavia-orange: #E87A41;
-  --kavia-dark: #1A1A1A;
-  --text-color: #ffffff;
-  --text-secondary: rgba(255, 255, 255, 0.7);
-  --border-color: rgba(255, 255, 255, 0.1);
-}
-```
-
-### Components
-
-This template uses pure HTML/CSS components instead of a UI framework. You can find component styles in `src/App.css`. 
-
-Common components include:
-- Buttons (`.btn`, `.btn-large`)
-- Container (`.container`)
-- Navigation (`.navbar`)
-- Typography (`.title`, `.subtitle`, `.description`)
-
-## Learn More
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- npm test
+- Basic test ensures app title renders.
