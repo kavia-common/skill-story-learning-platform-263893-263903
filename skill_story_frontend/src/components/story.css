@@ -84,7 +84,9 @@
 }
 
 .row { margin: 8px 0; display: flex; gap: 8px; align-items: center; }
-.row.form input {
+.row.form input,
+.row.form select,
+.row.form textarea {
   flex: 1;
   padding: 6px 8px;
   border-radius: 6px;

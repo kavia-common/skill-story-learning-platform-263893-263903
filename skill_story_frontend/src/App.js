@@ -4,11 +4,13 @@ import StoryBrowser from './components/StoryBrowser';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import Login from './components/Login';
 import Signup from './components/Signup';
+import { AuthoringDashboard } from './components/authoring';
 
 // PUBLIC_INTERFACE
-function Header({ theme, onToggle }) {
-  /** App header with theme switch and user status with logout. */
+function Header({ theme, onToggle, active, onNav }) {
+  /** App header with theme switch and user status with logout and authoring nav. */
   const { user, logout } = useAuth();
+  const isInstructor = String(user?.role || "").toLowerCase() === "instructor";
   return (
     <header className="App-header" style={{ minHeight: 'auto', padding: '16px', position: 'relative' }}>
       <button
@@ -20,6 +22,30 @@ function Header({ theme, onToggle }) {
       </button>
       <h1 style={{ margin: 0 }}>Skill Story LMS</h1>
       <p style={{ marginTop: 4 }}>A minimal end-to-end demo: stories, choices, progress, and journal.</p>
+      <div style={{ marginTop: 10, display: 'flex', gap: 8 }}>
+        <button
+          onClick={() => onNav('learn')}
+          className="choice"
+          style={{
+            background: active === 'learn' ? 'var(--button-bg)' : 'var(--bg-secondary)',
+            color: active === 'learn' ? 'var(--button-text)' : 'var(--text-primary)'
+          }}
+        >
+          Learn
+        </button>
+        {user && isInstructor && (
+          <button
+            onClick={() => onNav('author')}
+            className="choice"
+            style={{
+              background: active === 'author' ? 'var(--button-bg)' : 'var(--bg-secondary)',
+              color: active === 'author' ? 'var(--button-text)' : 'var(--text-primary)'
+            }}
+          >
+            Authoring
+          </button>
+        )}
+      </div>
       <div style={{ position: 'absolute', top: 16, left: 16, display: 'flex', gap: 8, alignItems: 'center' }}>
         <span style={{ fontSize: 14 }}>
           {user ? `Signed in as ${user.display_name || user.username || user.email}` : 'Not signed in'}
@@ -35,8 +61,8 @@ function Header({ theme, onToggle }) {
 }
 
 // PUBLIC_INTERFACE
-function AppBody() {
-  /** Renders either auth forms (login/signup) or the main StoryBrowser. */
+function AppBody({ active }) {
+  /** Renders either auth forms (login/signup) or the main StoryBrowser or Authoring. */
   const { user, initializing } = useAuth();
   const [tab, setTab] = useState('login');
   if (initializing) {
@@ -62,6 +88,9 @@ function AppBody() {
       </div>
     );
   }
+  if (active === 'author') {
+    return <AuthoringDashboard />;
+  }
   return <StoryBrowser />;
 }
 
@@ -81,11 +110,13 @@ function App() {
     setTheme(prevTheme => prevTheme === 'light' ? 'dark' : 'light');
   };
 
+  const [active, setActive] = useState('learn');
+
   return (
     <div className="App">
       <AuthProvider>
-        <Header theme={theme} onToggle={toggleTheme} />
-        <AppBody />
+        <Header theme={theme} onToggle={toggleTheme} active={active} onNav={setActive} />
+        <AppBody active={active} />
       </AuthProvider>
     </div>
   );

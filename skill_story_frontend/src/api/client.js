@@ -382,6 +382,176 @@
        body: JSON.stringify({ content }),
      });
    },
+
+   // ========== AUTHORING (Instructor) ==========
+   // These endpoints are expected; if backend not ready, handle gracefully.
+
+   // PUBLIC_INTERFACE
+   async authorListStories() {
+     /** List stories for authoring, including draft/published states. */
+     try {
+       return await request(url("/api/author/stories"), { method: "GET" });
+     } catch (e) {
+       e.developerHint = "Authoring endpoints may be missing; ensure backend provides /api/author/stories.";
+       throw e;
+     }
+   },
+
+   // PUBLIC_INTERFACE
+   async authorCreateStory(payload) {
+     /** Create a new story (title, description, tags, published). */
+     return request(url("/api/author/stories"), {
+       method: "POST",
+       body: JSON.stringify(payload),
+     });
+   },
+
+   // PUBLIC_INTERFACE
+   async authorUpdateStory(storyId, payload) {
+     /** Update story metadata fields; payload may include publish state. */
+     return request(url(`/api/author/stories/${encodeURIComponent(storyId)}`), {
+       method: "PUT",
+       body: JSON.stringify(payload),
+     });
+   },
+
+   // PUBLIC_INTERFACE
+   async authorDeleteStory(storyId) {
+     /** Delete story (and its episodes). */
+     return request(url(`/api/author/stories/${encodeURIComponent(storyId)}`), {
+       method: "DELETE",
+     });
+   },
+
+   // PUBLIC_INTERFACE
+   async authorListEpisodes(storyId) {
+     /** List episodes for a story for authoring. */
+     return request(url(`/api/author/stories/${encodeURIComponent(storyId)}/episodes`), {
+       method: "GET",
+     });
+   },
+
+   // PUBLIC_INTERFACE
+   async authorCreateEpisode(storyId, payload) {
+     /** Create an episode with index/order, content, quiz flag. */
+     return request(url(`/api/author/stories/${encodeURIComponent(storyId)}/episodes`), {
+       method: "POST",
+       body: JSON.stringify(payload),
+     });
+   },
+
+   // PUBLIC_INTERFACE
+   async authorUpdateEpisode(storyId, epIndex, payload) {
+     /** Update episode fields (index, content, is_quiz). */
+     return request(
+       url(
+         `/api/author/stories/${encodeURIComponent(storyId)}/episodes/${encodeURIComponent(epIndex)}`
+       ),
+       {
+         method: "PUT",
+         body: JSON.stringify(payload),
+       }
+     );
+   },
+
+   // PUBLIC_INTERFACE
+   async authorDeleteEpisode(storyId, epIndex) {
+     /** Delete an episode by index. */
+     return request(
+       url(
+         `/api/author/stories/${encodeURIComponent(storyId)}/episodes/${encodeURIComponent(epIndex)}`
+       ),
+       { method: "DELETE" }
+     );
+   },
+
+   // PUBLIC_INTERFACE
+   async authorListChoices(storyId, epIndex) {
+     /** List choices for an episode. */
+     return request(
+       url(
+         `/api/author/stories/${encodeURIComponent(storyId)}/episodes/${encodeURIComponent(epIndex)}/choices`
+       ),
+       { method: "GET" }
+     );
+   },
+
+   // PUBLIC_INTERFACE
+   async authorCreateChoice(storyId, epIndex, payload) {
+     /** Create a choice with label, next_episode_index, xp_delta, terminal flag. */
+     return request(
+       url(
+         `/api/author/stories/${encodeURIComponent(storyId)}/episodes/${encodeURIComponent(epIndex)}/choices`
+       ),
+       { method: "POST", body: JSON.stringify(payload) }
+     );
+   },
+
+   // PUBLIC_INTERFACE
+   async authorUpdateChoice(storyId, epIndex, choiceId, payload) {
+     /** Update a choice. */
+     return request(
+       url(
+         `/api/author/stories/${encodeURIComponent(storyId)}/episodes/${encodeURIComponent(epIndex)}/choices/${encodeURIComponent(choiceId)}`
+       ),
+       { method: "PUT", body: JSON.stringify(payload) }
+     );
+   },
+
+   // PUBLIC_INTERFACE
+   async authorDeleteChoice(storyId, epIndex, choiceId) {
+     /** Delete a choice. */
+     return request(
+       url(
+         `/api/author/stories/${encodeURIComponent(storyId)}/episodes/${encodeURIComponent(epIndex)}/choices/${encodeURIComponent(choiceId)}`
+       ),
+       { method: "DELETE" }
+     );
+   },
+
+   // PUBLIC_INTERFACE
+   async authorListQuizQuestions(storyId, epIndex) {
+     /** List quiz questions for a quiz episode. */
+     return request(
+       url(
+         `/api/author/stories/${encodeURIComponent(storyId)}/episodes/${encodeURIComponent(epIndex)}/quiz-questions`
+       ),
+       { method: "GET" }
+     );
+   },
+
+   // PUBLIC_INTERFACE
+   async authorCreateQuizQuestion(storyId, epIndex, payload) {
+     /** Create a quiz question (MCQ/TF) with options and correct answer. */
+     return request(
+       url(
+         `/api/author/stories/${encodeURIComponent(storyId)}/episodes/${encodeURIComponent(epIndex)}/quiz-questions`
+       ),
+       { method: "POST", body: JSON.stringify(payload) }
+     );
+   },
+
+   // PUBLIC_INTERFACE
+   async authorUpdateQuizQuestion(storyId, epIndex, qId, payload) {
+     /** Update quiz question contents and answer. */
+     return request(
+       url(
+         `/api/author/stories/${encodeURIComponent(storyId)}/episodes/${encodeURIComponent(epIndex)}/quiz-questions/${encodeURIComponent(qId)}`
+       ),
+       { method: "PUT", body: JSON.stringify(payload) }
+     );
+   },
+
+   // PUBLIC_INTERFACE
+   async authorDeleteQuizQuestion(storyId, epIndex, qId) {
+     /** Delete quiz question. */
+     return request(
+       url(
+         `/api/author/stories/${encodeURIComponent(storyId)}/episodes/${encodeURIComponent(epIndex)}/quiz-questions/${encodeURIComponent(qId)}`
+       ),
+       { method: "DELETE" }
+     );
+   },
  };
 
  export default api;
