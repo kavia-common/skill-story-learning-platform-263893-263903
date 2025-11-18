@@ -62,26 +62,33 @@ export function useEpisode(storyId, epIndex) {
 }
 
 // PUBLIC_INTERFACE
-export function useSubmitChoice() {
-  /** Hook for submitting a choice; returns submit(choiceId) */
+export function useSubmitChoice(onUnauthorized) {
+  /**
+   * Hook for submitting a choice; returns submit(storyId, choiceId, epIndex)
+   * - Attaches Bearer token via client
+   * - Surfaces 401 via onUnauthorized callback for login prompt
+   */
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [result, setResult] = useState(null);
 
-  const submit = useCallback(async (storyId, choiceId) => {
+  const submit = useCallback(async (storyId, choiceId, epIndex = null) => {
     setLoading(true);
     setError(null);
     try {
-      const res = await api.submitChoice(storyId, choiceId);
+      const res = await api.submitChoice(storyId, choiceId, epIndex);
       setResult(res.data);
       return res.data;
     } catch (e) {
+      if (e && e.status === 401 && typeof onUnauthorized === "function") {
+        onUnauthorized(e);
+      }
       setError(e);
       throw e;
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [onUnauthorized]);
 
   return { submit, loading, error, result, setResult };
 }
@@ -142,6 +149,10 @@ export function useAuthDemo() {
     try {
       const res = await api.issueToken(xDemoUser);
       setToken(res.data);
+      // store token if shape includes access_token
+      if (res?.data?.access_token) {
+        api.setToken(res.data.access_token);
+      }
       return res.data;
     } catch (e) {
       setError(e);

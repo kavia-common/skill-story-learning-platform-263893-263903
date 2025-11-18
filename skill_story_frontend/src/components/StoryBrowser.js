@@ -14,10 +14,11 @@ export default function StoryBrowser() {
 
   const [selectedStoryId, setSelectedStoryId] = useState(null);
   const [epIndex, setEpIndex] = useState(0);
+  const [authPrompt, setAuthPrompt] = useState(false);
 
   const { data: ep, loading: loadingEp, error: epError, refetch: refetchEp } = useEpisode(selectedStoryId, epIndex);
-  const { submit, loading: submitting, error: submitError } = useSubmitChoice();
-  const { data: progress, loading: loadingProgress } = useProgress();
+  const { submit, loading: submitting, error: submitError } = useSubmitChoice(() => setAuthPrompt(true));
+  const { data: progress, loading: loadingProgress, refetch: refetchProgress } = useProgress();
   const { data: profile, loading: loadingProfile, update: updateProfile } = useProfile();
   const { data: journalEntries, loading: loadingJournal, create: createJournal } = useJournal();
 
@@ -28,15 +29,24 @@ export default function StoryBrowser() {
 
   const onChoose = async (choiceId) => {
     if (!selectedStoryId) return;
+    // Optimistic UI: immediately advance index, but keep a rollback pointer
+    const prevIndex = epIndex;
+    const optimisticNext = prevIndex + 1;
+    setEpIndex(optimisticNext);
     try {
-      const next = await submit(selectedStoryId, choiceId);
-      // Try to use next index if provided; otherwise increment locally
-      const nextIndex = (next && next.next_ep_index) != null ? next.next_ep_index : epIndex + 1;
+      const result = await submit(selectedStoryId, choiceId, prevIndex);
+      // Use server-provided next index if available to correct optimistic step
+      const nextIndex = (result && result.next_ep_index) != null ? result.next_ep_index : optimisticNext;
       setEpIndex(nextIndex);
-      // refetch current episode
-      setTimeout(() => refetchEp(), 0);
+      // Sync current episode and progress
+      setTimeout(() => {
+        refetchEp();
+        refetchProgress();
+      }, 0);
     } catch (e) {
-      // error handled by hook state; no-op
+      // Rollback optimistic advance on failure
+      setEpIndex(prevIndex);
+      // If unauthorized, authPrompt state is set via hook callback
     }
   };
 
@@ -59,6 +69,15 @@ export default function StoryBrowser() {
   const choices = useMemo(() => (ep && ep.choices) || [], [ep]);
 
   const showStoriesFallbackNote = !!storiesError && Array.isArray(stories) && stories.length > 0;
+
+  const renderSubmitError = () => {
+    if (!submitError) return null;
+    const msg =
+      (submitError.data && (submitError.data.detail || submitError.data.message)) ||
+      submitError.message ||
+      "Failed to submit choice.";
+    return <div className="error">{msg}</div>;
+  };
 
   return (
     <div className="layout">
@@ -104,10 +123,15 @@ export default function StoryBrowser() {
                   onClick={() => onChoose(c.id || c.choice_id)}
                   className="choice"
                 >
-                  {c.label || c.text || `Choice ${c.id || c.choice_id}`}
+                  {submitting ? "Submitting…" : (c.label || c.text || `Choice ${c.id || c.choice_id}`)}
                 </button>
               ))}
-              {submitError && <div className="error">Failed to submit choice.</div>}
+              {renderSubmitError()}
+              {authPrompt && (
+                <div className="error">
+                  You need to be logged in to make a choice. Please log in and try again.
+                </div>
+              )}
             </div>
           </div>
         )}

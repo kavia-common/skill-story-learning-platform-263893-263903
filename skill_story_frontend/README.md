@@ -7,7 +7,7 @@ Minimal React UI wired to FastAPI backend for stories, episodes/choices, XP/prog
 1. Copy environment file and set backend URL:
    cp .env.example .env
    # then edit .env, set REACT_APP_API_BASE_URL to your FastAPI URL (e.g., http://localhost:8000)
-   # optionally set REACT_APP_DEMO_USER to pass X-Demo-User header
+   # optionally set REACT_APP_DEMO_USER header
 
 2. Install dependencies and run:
    npm install
@@ -20,15 +20,20 @@ Minimal React UI wired to FastAPI backend for stories, episodes/choices, XP/prog
 - API client (src/api/client.js) with:
   - Env-driven base URL (REACT_APP_API_BASE_URL)
   - Optional demo header (REACT_APP_DEMO_USER -> X-Demo-User)
-  - CORS safe fetch with credentials include
+  - Authorization: Bearer <token> automatically attached when available (localStorage key: skillstory.token)
+  - Unified 401 handling (hooks can prompt login)
   - Endpoints: health, auth (stub), stories, episode, submit choice, progress, profile, journal
 
 - React hooks (src/hooks/useApi.js)
   - useStories, useEpisode, useSubmitChoice, useProgress, useProfile, useJournal, useAuthDemo
+  - Optimistic episode advance on choice submit, with rollback on failure
+  - Progress sync after successful choice
   - Built-in loading/error state and refetch
 
 - Minimal UI demo (src/components/StoryBrowser.js)
   - Story list -> episode text & choices -> advance on select
+  - Choices disabled during submission, server validation errors shown
+  - Auth prompt on 401 to request login
   - Profile display and update display_name
   - Progress (XP, current story/episode)
   - Journal list and create entry
