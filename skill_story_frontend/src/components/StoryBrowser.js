@@ -58,12 +58,19 @@ export default function StoryBrowser() {
 
   const choices = useMemo(() => (ep && ep.choices) || [], [ep]);
 
+  const showStoriesFallbackNote = !!storiesError && Array.isArray(stories) && stories.length > 0;
+
   return (
     <div className="layout">
       <aside className="panel left">
         <h2>Stories</h2>
         {loadingStories && <div className="muted">Loading stories…</div>}
-        {storiesError && <div className="error">Failed to load stories.</div>}
+        {storiesError && !showStoriesFallbackNote && <div className="error">Failed to load stories.</div>}
+        {showStoriesFallbackNote && (
+          <div className="muted" style={{ color: "var(--text-secondary)" }}>
+            Showing demo stories while the server is unavailable.
+          </div>
+        )}
         <ul className="list">
           {Array.isArray(stories) &&
             stories.map((s) => (
@@ -84,7 +91,7 @@ export default function StoryBrowser() {
         <h2>Episode</h2>
         {!selectedStoryId && <div className="muted">Select a story to begin.</div>}
         {selectedStoryId && loadingEp && <div className="muted">Loading episode…</div>}
-        {selectedStoryId && epError && <div className="error">Failed to load episode.</div>}
+        {selectedStoryId && epError && !ep && <div className="error">Failed to load episode.</div>}
         {selectedStoryId && ep && (
           <div className="episode">
             <div className="ep-body">{ep.text || ep.body || ep.content || JSON.stringify(ep)}</div>

@@ -17,6 +17,7 @@ function useAsync(fn, deps = []) {
       const res = await fn();
       setData(res.data);
     } catch (e) {
+      // Preserve the error and keep any last-known data in place
       setError(e);
     } finally {
       setLoading(false);
@@ -38,7 +39,7 @@ export function useHealth() {
 
 // PUBLIC_INTERFACE
 export function useStories() {
-  /** Hook to get list of stories */
+  /** Hook to get list of stories (leverages API fallback under the hood) */
   return useAsync(() => api.listStories(), []);
 }
 
@@ -50,7 +51,7 @@ export function useStory(storyId) {
 
 // PUBLIC_INTERFACE
 export function useEpisode(storyId, epIndex) {
-  /** Hook to get current episode payload */
+  /** Hook to get current episode payload (leverages API fallback under the hood) */
   return useAsync(
     () =>
       storyId != null && epIndex != null
