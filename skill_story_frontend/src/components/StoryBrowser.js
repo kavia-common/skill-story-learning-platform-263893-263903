@@ -34,10 +34,18 @@ export default function StoryBrowser() {
     const optimisticNext = prevIndex + 1;
     setEpIndex(optimisticNext);
     try {
-      const result = await submit(selectedStoryId, choiceId, prevIndex);
+      // Do NOT send epIndex; backend supports POST /api/stories/{id}/choices
+      const result = await submit(selectedStoryId, choiceId, null);
+
+      // Server returns { success, data: { next_episode_index, ... } } envelope in backend,
+      // but our api client returns res.data (already parsed). Support both shapes:
+      const payload = result && (result.data || result); // unwrap if envelope leaked through
+      const serverNext = payload && (payload.next_episode_index ?? payload.next_ep_index);
+
       // Use server-provided next index if available to correct optimistic step
-      const nextIndex = (result && result.next_ep_index) != null ? result.next_ep_index : optimisticNext;
+      const nextIndex = serverNext != null ? serverNext : optimisticNext;
       setEpIndex(nextIndex);
+
       // Sync current episode and progress
       setTimeout(() => {
         refetchEp();

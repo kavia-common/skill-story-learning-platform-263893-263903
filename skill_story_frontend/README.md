@@ -6,7 +6,7 @@ Minimal React UI wired to FastAPI backend for stories, episodes/choices, XP/prog
 
 1. Copy environment file and set backend URL:
    cp .env.example .env
-   # then edit .env, set REACT_APP_API_BASE_URL to your FastAPI URL (e.g., http://localhost:8000)
+   # then edit .env, set REACT_APP_API_BASE_URL to your FastAPI URL (e.g., http://localhost:3001)
    # optionally set REACT_APP_DEMO_USER header
 
 2. Install dependencies and run:
