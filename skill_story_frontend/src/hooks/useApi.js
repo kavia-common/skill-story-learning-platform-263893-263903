@@ -1,7 +1,8 @@
 /**
  * React hooks for Skill Story API access. Each hook returns { data, loading, error, refetch, ... }.
+ * Protected calls automatically attach Authorization via client and will attempt one refresh on 401.
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import api from "../api/client";
 
 // Utility to standardize async state
@@ -149,7 +150,6 @@ export function useAuthDemo() {
     try {
       const res = await api.issueToken(xDemoUser);
       setToken(res.data);
-      // store token if shape includes access_token
       if (res?.data?.access_token) {
         api.setToken(res.data.access_token);
       }

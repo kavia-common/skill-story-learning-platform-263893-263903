@@ -1,6 +1,6 @@
 # Skill Story LMS Frontend
 
-Minimal React UI wired to FastAPI backend for stories, episodes/choices, XP/progress, profile, and journal.
+Minimal React UI wired to FastAPI backend for stories, episodes/choices, XP/progress, profile, journal, and authentication.
 
 ## Quick Start
 
@@ -21,8 +21,13 @@ Minimal React UI wired to FastAPI backend for stories, episodes/choices, XP/prog
   - Env-driven base URL (REACT_APP_API_BASE_URL)
   - Optional demo header (REACT_APP_DEMO_USER -> X-Demo-User)
   - Authorization: Bearer <token> automatically attached when available (localStorage key: skillstory.token)
-  - Unified 401 handling (hooks can prompt login)
-  - Endpoints: health, auth (stub), stories, episode, submit choice, progress, profile, journal
+  - One-time 401 refresh retry using /api/auth/refresh when refresh token exists (localStorage key: skillstory.refresh_token)
+  - Endpoints: health, auth (register/login/refresh/me), stories, episode, submit choice, progress, profile, journal
+
+- Auth context (src/context/AuthContext.js)
+  - login, register, logout, refresh, me
+  - Stores access and refresh tokens
+  - Provides current user and initializing state
 
 - React hooks (src/hooks/useApi.js)
   - useStories, useEpisode, useSubmitChoice, useProgress, useProfile, useJournal, useAuthDemo
@@ -30,14 +35,21 @@ Minimal React UI wired to FastAPI backend for stories, episodes/choices, XP/prog
   - Progress sync after successful choice
   - Built-in loading/error state and refetch
 
-- Minimal UI demo (src/components/StoryBrowser.js)
-  - Story list -> episode text & choices -> advance on select
-  - Choices disabled during submission, server validation errors shown
-  - Auth prompt on 401 to request login
+- UI (src/components)
+  - StoryBrowser: stories list -> episode text & choices -> advance
+  - Login and Signup forms
+  - Header shows current user and Logout button
   - Profile display and update display_name
   - Progress (XP, current story/episode)
   - Journal list and create entry
   - Responsive layout and theme toggle (light/dark)
+
+## Backend endpoints (expected)
+
+- POST /api/auth/login
+- POST /api/auth/register
+- POST /api/auth/refresh
+- GET  /api/auth/me
 
 ## Environment Variables
 
